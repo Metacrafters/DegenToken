@@ -36,7 +36,7 @@ The C-Chain also supports interoperability with other blockchains, including Eth
 
 The [C-Chain API](https://docs.avax.network/apis/avalanchego/apis/x-chain) provides a similar interface to the Ethereum JSON-RPC API, making it easy for developers to interact with the C-Chain using their existing tools and libraries.
 
-In this guide we're going to interact with the C-Chain, we need to create an ERC20 token to represent points for a company event, we want to enable the HR department to mint these tokens according to their needs, so we also need to add simple mint function to our smart contract to mint these tokens to a specific address. We are going to cover all of that in this guide.
+In this guide we're going to interact with the C-Chain, we need to create an ERC20 token to represent Degen Tokens for a gaming studio, we want to enable the studio to mint these tokens according to their needs, so we also need to add simple mint function to our smart contract to mint these tokens to a specific address. We are going to cover all of that in this guide.
 
 ### Setup
 We need to create a Hardhat project, the process is straightforward but we are going to recap just for a summary.
@@ -75,7 +75,7 @@ $ npx hardhat
 We are going to use JavaScript for this guide but feel free to use TypeScript if you are familiar with it.
 
 ## Smart contract
-For the smart contract section, we are going to create a Points ERC20 token using OpenZeppelin, and we are going to make it mintable.
+For the smart contract section, we are going to create a Degen ERC20 token using OpenZeppelin, and we are going to make it mintable.
 
 First, we need to install OpenZeppelin, OpenZeppelin is a library for secure smart contract development, build on a solid foundation of community-vetted code.
 
@@ -83,7 +83,7 @@ First, we need to install OpenZeppelin, OpenZeppelin is a library for secure sma
 $ npm install @openzeppelin/contracts
 ```
 
-After that is completely inside the `contracts` folder we are going to create a `Points.sol` file, and put the following contents inside of it:
+After that is completely inside the `contracts` folder we are going to create a `DegenToken.sol` file, and put the following contents inside of it:
 
 ```sol
 // SPDX-License-Identifier: MIT
@@ -249,21 +249,21 @@ $ npx hardhat verify <contract address> <arguments> --network <network>
 We need 1 script, the `deploy.js` script, to deploy our Points token smart contract to the chain that we want.
 
 ### Deploy script
-First, we are going to implement our mint script, if you are familiar with Hardhat this process is simple, we need to get the Points smart contract, deploy it, and print the address where it was deployed (we need to store that address for the `mint.js` script).
+First, we are going to implement our mint script, if you are familiar with Hardhat this process is simple, we need to get the DegenToken smart contract, deploy it, and print the address where it was deployed (we need to store that address for the `mint.js` script).
 
 ```js
 const hre = require("hardhat");
 
 async function main() {
-  // Get the Points smart contract
-  const Points = await hre.ethers.getContractFactory("Points");
+  // Get the DegenTokens smart contract
+  const Degen = await hre.ethers.getContractFactory("DegenToken");
 
   // Deploy it
-  const points = await Points.deploy();
-  await points.deployed();
+  const degen = await Degen.deploy();
+  await degen.deployed();
 
   // Display the contract address
-  console.log(`Points token deployed to ${points.address}`);
+  console.log(`Degen token deployed to ${degen.address}`);
 }
 
 // Hardhat recommends this pattern to be able to use async/await everywhere
@@ -315,7 +315,9 @@ If you have set up your API key, we can verify the smart contract on Fuji by run
 $ npx hardhat verify <YOUR TOKEN ADDRESS> --network fuji
 ```
 
-Now we can go to [https://testnet.snowtrace.io/](https://testnet.snowtrace.io/) and search for our smart contract, using the same address that we used before, and there it is our Poitns token, with a verified contract.
+Now we can go to [https://testnet.snowtrace.io/](https://testnet.snowtrace.io/) and search for our smart contract, using the same address that we used before, and there it is our Degen Token, with a verified contract.
+
+(everything after this is optional)
 
 This is great but we now need to deploy the smart contract to the mainnet, to have it in a completely secure environment.
 
