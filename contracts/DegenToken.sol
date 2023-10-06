@@ -1,85 +1,38 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.18;
 
-contract DegenToken{
-    address public  owner;
-    uint public totalSupply;
-    mapping (address => uint) public balanceOf;
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-    event Transfer(address indexed from, address indexed to, uint amount);
+contract DegenToken is ERC20, Ownable {
 
-    struct Item {
-        uint itemId;
-        string itemName;
-        uint itemPrice;
-    }
-    
-    mapping(uint => Item) public items;
-    uint public itemCount;
+    constructor() ERC20("Degen", "DGN") {}
 
-    constructor() {
-        owner = msg.sender;
-        totalSupply = 0;
+    // Mint new tokens. Only the owner can call this function.
+    function mint(address to, uint256 amount) public onlyOwner {
+        _mint(to, amount);
     }
 
-    modifier onlyOwner {
-        require(msg.sender == owner, "You are not the Owner so you cant't Mint the Tokens");
-        _;
+    // Transfer tokens to another address.
+    function transferTokens(address to, uint256 amount) public {
+        _transfer(msg.sender, to, amount);
     }
 
-    string public constant name = "Degen Token";
-    string public constant symbol = "DGN";
-
-    function transfer(address _address, uint _value) external returns (bool) {
-        require(balanceOf[msg.sender] >= _value, "You don't have enough Tokens to Transfer");
-
-        balanceOf[msg.sender] -= _value;
-        balanceOf[_address] += _value;
-
-        emit Transfer(msg.sender, _address, _value);
-        return true;
+    // Redeem tokens for in-game items or rewards.
+    function redeemTokens(uint256 amount) public {
+        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
+        _burn(msg.sender, amount);
+        // Add logic here to provide in-game items or rewards.
     }
 
-    function mint(address _address,uint _value) external onlyOwner {
-        balanceOf[_address] += _value;
-        totalSupply += _value;
-        emit Transfer(address(0), _address, _value);
+    // Check the token balance of an address.
+    function checkTokenBalance(address account) public view returns (uint256) {
+        return balanceOf(account);
     }
 
-    function burn(uint _value) external {
-        require(_value > 0, "You have Zero Tokens on the platform");
-        require(balanceOf[msg.sender] >= _value, "You have less number of token then what you want to burn");
-        balanceOf[msg.sender] -= _value;
-        totalSupply -= _value;
-
-        emit Transfer(msg.sender, address(0), _value);
-    }
-    
-    function addItem(string memory _itemName, uint256 _itemPrice) external onlyOwner {
-        itemCount++;
-        Item memory newItem = Item(itemCount, _itemName, _itemPrice);
-        items[itemCount] = newItem;
-    }
-
-    function getItems() external view returns (Item[] memory) {
-        Item[] memory allItems = new Item[](itemCount);
-        
-        for (uint i = 1; i <= itemCount; i++) {
-            allItems[i - 1] = items[i];
-        }
-        
-        return allItems;
-    }
-    
-    function redeem(uint _itemId) external {
-        require(_itemId > 0 && _itemId <= itemCount, "Enterd Wrong number of Item!!");
-        Item memory redeemedItem = items[_itemId];
-        
-        require(balanceOf[msg.sender] >= redeemedItem.itemPrice, "You can't Redeem this Item as you have less no of Tokens then the Required!!");
-        
-        balanceOf[msg.sender] -= redeemedItem.itemPrice;
-        balanceOf[owner] += redeemedItem.itemPrice;
-        emit Transfer(msg.sender, address(0), redeemedItem.itemPrice);
-        
+    // Burn tokens owned by the caller.
+    function burnTokens(uint256 amount) public {
+        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
+        _burn(msg.sender, amount);
     }
 }
